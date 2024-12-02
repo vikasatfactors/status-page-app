@@ -2,31 +2,25 @@ package handlers
 
 import (
 	"backend/models"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Helper function to get organization ID from context (or from JWT)
-func getOrgIDFromContext(c *gin.Context) string {
-	// Example: extracting org_id from the context (can be passed via JWT claims or session)
-	orgID, exists := c.Get("org_id")
-	if !exists {
-		return "" // You may want to return an error or handle it differently
-	}
-	return orgID.(string)
-}
-
 func CreateService(c *gin.Context) {
 	permissions, _ := c.Get("permissions")
+
 	if !hasPermission(permissions, "write:services") {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a service"})
 		return
 	}
 
-	orgID := getOrgIDFromContext(c)
-	if orgID == "" {
+	orgID, exists := c.Get("orgID")
+	if !exists {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a service"})
+		return
 	}
 	var service models.Service
 	if err := c.ShouldBindJSON(&service); err != nil {
@@ -35,7 +29,7 @@ func CreateService(c *gin.Context) {
 	}
 
 	// Ensure service is created for the correct organization
-	service.OrganizationID = orgID
+	service.OrganizationID = orgID.(string)
 
 	if err := models.DB.Create(&service).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -51,12 +45,13 @@ func GetServices(c *gin.Context) {
 		return
 	}
 
-	orgID := getOrgIDFromContext(c)
-	if orgID == "" {
+	orgID, exists := c.Get("orgID")
+	if !exists {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a service"})
+		return
 	}
 	var services []models.Service
-	if err := models.DB.Where("org_id = ?", orgID).Find(&services).Error; err != nil {
+	if err := models.DB.Where("organization_id = ?", orgID).Find(&services).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -70,13 +65,14 @@ func GetService(c *gin.Context) {
 		return
 	}
 
-	orgID := getOrgIDFromContext(c)
-	if orgID == "" {
+	orgID, exists := c.Get("orgID")
+	if !exists {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a service"})
+		return
 	}
 	id := c.Param("id")
 	var service models.Service
-	if err := models.DB.Where("id = ? AND org_id = ?", id, orgID).First(&service).Error; err != nil {
+	if err := models.DB.Where("id = ? AND organization_id = ?", id, orgID).First(&service).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Service not found"})
 		return
 	}
@@ -84,40 +80,109 @@ func GetService(c *gin.Context) {
 }
 
 func UpdateService(c *gin.Context) {
+	type StatusUpdateRequest struct {
+		Status string `json:"status"`
+	}
+
+	var req StatusUpdateRequest
+
 	permissions, _ := c.Get("permissions")
 	if !hasPermission(permissions, "write:services") {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to update this service"})
 		return
 	}
 
-	orgID := getOrgIDFromContext(c)
-	if orgID == "" {
+	orgID, exists := c.Get("orgID")
+	if !exists {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a service"})
+		return
 	}
-	id := c.Param("id")
+
+	serviceID := c.Param("id") // Service ID from the route
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
+	}
+
 	var service models.Service
-	if err := models.DB.Where("id = ? AND org_id = ?", id, orgID).First(&service).Error; err != nil {
+	if err := models.DB.Where("id = ? AND organization_id = ?", serviceID, orgID).First(&service).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Service not found"})
 		return
 	}
 
-	var request struct {
-		Status string `json:"status"`
-	}
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// Update service status
+	previousStatus := service.Status
+	service.Status = req.Status
+	if err := models.DB.Save(&service).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update service"})
 		return
 	}
 
-	// Update service status
-	service.Status = request.Status
-	if err := models.DB.Save(&service).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	// Handle incidents based on status change
+	if shouldCreateIncident(previousStatus, req.Status) {
+		newID, _ := GenerateRandomHashID(16)
+		incident := models.Incident{
+			ID:          newID,
+			Title:       "Service Issue Detected",
+			Description: fmt.Sprintf("The %s has entered a degraded or outage state.", service.Name),
+			Status:      "active",
+			Priority:    getIncidentPriority(req.Status), // Set priority based on the status
+			ServiceID:   service.ID,
+			CreatedAt:   time.Now(),
+		}
+		if err := models.DB.Create(&incident).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create incident"})
+			return
+		}
+	} else if shouldResolveIncident(previousStatus, req.Status) {
+		var activeIncident models.Incident
+		if err := models.DB.Where("service_id = ? AND status = ?", service.ID, "active").First(&activeIncident).Error; err == nil {
+			if err := models.DB.Model(&activeIncident).
+				Where("service_id = ? AND status = ?", service.ID, "active"). // Add the WHERE condition for the update
+				Updates(map[string]interface{}{
+					"status":      "resolved",
+					"resolved_at": timePtr(time.Now()),
+				}).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "organization_id"})
+				return
+			}
+		}
 	}
+
+	message := service.Name + " status changed to " + service.Status
+	BroadcastUpdate(message)
 	c.JSON(http.StatusOK, service)
 }
 
+// Helper functions to determine incident logic
+func shouldCreateIncident(previousStatus, newStatus string) bool {
+	return previousStatus == "operational" &&
+		(newStatus == "degraded" || newStatus == "partial_outage" || newStatus == "major_outage")
+}
+
+func shouldResolveIncident(previousStatus, newStatus string) bool {
+	return (previousStatus == "degraded" || previousStatus == "partial_outage" || previousStatus == "major_outage") &&
+		newStatus == "operational"
+}
+
+// Helper function to determine priority based on the service status
+func getIncidentPriority(status string) string {
+	switch status {
+	case "degraded":
+		return "medium"
+	case "partial_outage":
+		return "high"
+	case "major_outage":
+		return "critical"
+	default:
+		return "low" // Default to low if operational or other status
+	}
+}
+
+func timePtr(t time.Time) *time.Time {
+	return &t
+}
 func DeleteService(c *gin.Context) {
 	permissions, _ := c.Get("permissions")
 	if !hasPermission(permissions, "write:services") {
@@ -125,12 +190,13 @@ func DeleteService(c *gin.Context) {
 		return
 	}
 
-	orgID := getOrgIDFromContext(c)
-	if orgID == "" {
+	orgID, exists := c.Get("orgID")
+	if !exists {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a service"})
+		return
 	}
 	id := c.Param("id")
-	if err := models.DB.Where("id = ? AND org_id = ?", id, orgID).Delete(&models.Service{}).Error; err != nil {
+	if err := models.DB.Where("id = ? AND organization_id = ?", id, orgID).Delete(&models.Service{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -65,12 +65,12 @@ const IncidentList: React.FC<IncidentListProps> = ({
             <div className='text-xs text-gray-500 space-y-1'>
               <p>
                 <span className='font-medium'>Created:</span>
-                {formattedDate(incident.CreatedAt)}
+                {formattedDate(incident.created_at)}
               </p>
-              {incident.ResolvedAt && (
+              {incident.resolved_at && (
                 <p>
                   <span className='font-medium'>Resolved:</span>
-                  {formattedDate(incident.ResolvedAt)}
+                  {formattedDate(incident.resolved_at)}
                 </p>
               )}
             </div>

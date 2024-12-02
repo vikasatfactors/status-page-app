@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/gommon/log"
 	"github.com/lestrrat-go/jwx/jwk"
 )
 
@@ -53,10 +52,9 @@ func Auth0Middleware() gin.HandlerFunc {
 		}
 
 		// Add claims to context
-		log.Info(claims)
 		c.Set("userID", claims["sub"])
 		c.Set("roles", claims["https://mystatuspageapp.com/roles"])
-		c.Set("ordID", claims["org_id"])
+		c.Set("orgID", claims["org_id"])
 		c.Set("permissions", claims["permissions"])
 		c.Next()
 	}

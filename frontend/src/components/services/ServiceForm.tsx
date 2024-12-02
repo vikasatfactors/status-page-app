@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Service } from '@/types/types';
 import { Button } from '@/components/ui/button';
+import { generateHashID } from '@/lib/utils';
 
 interface ServiceFormProps {
   onSave: (service: Service) => void;
@@ -24,14 +25,19 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
   useEffect(() => {
     if (initialData) {
       setName(initialData.name);
-      setDescription(initialData.description);
+      setDescription(initialData?.description);
       setStatus(initialData.status);
     }
   }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ id: initialData?.id || Date.now(), name, description, status });
+    onSave({
+      id: initialData?.id || generateHashID(),
+      name,
+      description,
+      status,
+    });
   };
 
   return (

@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/models"
 	"net/http"
+	"sort"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,6 +39,10 @@ func GetIncidents(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	sort.Slice(incidents, func(i, j int) bool {
+		return incidents[i].CreatedAt.After(incidents[j].CreatedAt)
+	})
 	c.JSON(http.StatusOK, incidents)
 }
 

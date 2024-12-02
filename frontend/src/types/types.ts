@@ -3,7 +3,7 @@ export interface Service {
   name: string;
   status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
   description?: string;
-  arg_id: string;
+  organization_id: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -26,7 +26,7 @@ export interface User {
   name: string;
   role: 'admin' | 'user';
   team_id: string;
-  org_id: string;
+  organization_id: string;
 }
 
 export interface Organization {
@@ -39,7 +39,7 @@ export interface Organization {
 export interface Team {
   id: string;
   name: string;
-  org_id: string;
+  organization_id: string;
   description?: string;
   members: User[];
   created_at: string;

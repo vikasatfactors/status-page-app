@@ -40,6 +40,15 @@ const Profile: React.FC = () => {
         </div>
       )}
 
+      {user?.['https://mystatuspageapp.com/roles'] && (
+        <div className='flex justify-between items-center'>
+          <span className='text-sm'>Roles</span>
+          <Badge variant='outline'>
+            {user['https://mystatuspageapp.com/roles']}
+          </Badge>
+        </div>
+      )}
+
       <div className='space-y-2'>
         <div className='flex justify-between items-center'>
           <span className='text-sm'>Auth Provider</span>

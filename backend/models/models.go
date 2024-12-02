@@ -15,14 +15,14 @@ type User struct {
 	PasswordHash   string `json:"password_hash"`
 	Role           string `json:"role"`
 	TeamID         string `json:"team_id"`
-	OrganizationID string `json:"org_id"`
+	OrganizationID string `json:"organization_id"`
 }
 
 // Team Model
 type Team struct {
 	ID             string `json:"id" gorm:"primaryKey"`
 	Name           string `json:"name"`
-	OrganizationID string `json:"org_id"`
+	OrganizationID string `json:"organization_id"`
 }
 
 // Organization Model (Multi-Tenant)
@@ -34,10 +34,10 @@ type Organization struct {
 // Service Model
 type Service struct {
 	ID             string `json:"id" gorm:"primaryKey"`
-	Name           string `json:"name"`
+	Name           string `json:"name" gorm:"uniqueIndex:idx_name_org"`
 	Status         string `json:"status"`
 	Description    string `json:"description"`
-	OrganizationID string `json:"org_id"`
+	OrganizationID string `json:"organization_id" gorm:"uniqueIndex:idx_name_org"`
 }
 
 // Incident Model
