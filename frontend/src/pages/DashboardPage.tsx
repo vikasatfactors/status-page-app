@@ -1,44 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// src/pages/DashboardPage.tsx
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setServices, setLoading, setError } from '@/store/servicesSlice';
+import { getServices, updateService } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Server } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { getServices, updateService } from '@/lib/api';
 import ServiceStatusRow from '@/components/services/ServiceStatusRow';
-
-interface Service {
-  id: string;
-  name: string;
-  status: string;
-}
+import { Service } from '@/types/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const DashboardPage: React.FC = () => {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const { services, loading } = useSelector(
+    (state: any) => state.services
+  );
+
+  // Fetch services when the component is mounted
   useEffect(() => {
     const fetchServices = async () => {
+      dispatch(setLoading()); // Set loading state in Redux
       try {
         const data = await getServices();
-        setServices(data);
-      } catch (error) {
-        console.error('Error fetching services:', error);
-      } finally {
-        setLoading(false);
+        dispatch(setServices(data)); // Store fetched services in Redux
+      } catch (err) {
+        console.error('Error fetching services:', err);
+        dispatch(setError('Failed to load services')); // Handle error in Redux
       }
     };
 
     fetchServices();
-  }, []);
+  }, [dispatch]);
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       const updatedService = await updateService(id, { status: newStatus });
-      setServices((prevServices) =>
-        prevServices.map((service) =>
-          service.id === id ? { ...service, ...updatedService } : service
+      dispatch(
+        setServices(
+          services.map((service: Service) =>
+            service.id === id ? { ...service, ...updatedService } : service
+          )
         )
       );
     } catch (error) {
