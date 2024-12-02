@@ -5,7 +5,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 interface ServiceListProps {
   services: Service[];
   onEdit: (service: Service) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   loading: boolean; // Add loading prop
 }
 

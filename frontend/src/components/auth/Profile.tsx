@@ -31,6 +31,15 @@ const Profile: React.FC = () => {
         </div>
       </div>
 
+      {user?.org_id && (
+        <div className='flex justify-between items-center'>
+          <span className='text-sm'>Organization</span>
+          <Badge variant='outline'>
+            {user['https://mystatuspageapp.com/org_name']}
+          </Badge>
+        </div>
+      )}
+
       <div className='space-y-2'>
         <div className='flex justify-between items-center'>
           <span className='text-sm'>Auth Provider</span>

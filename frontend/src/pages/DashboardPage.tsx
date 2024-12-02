@@ -1,4 +1,3 @@
-// src/pages/DashboardPage.tsx
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setServices, setLoading, setError } from '@/store/servicesSlice';
@@ -10,14 +9,32 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import ServiceStatusRow from '@/components/services/ServiceStatusRow';
 import { Service } from '@/types/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { addMessage } from '@/store/wsSlice';
+import { useWebSocket } from '@/contexts/WebSocketContext';
 
 const DashboardPage: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { services, loading } = useSelector(
-    (state: any) => state.services
-  );
+  const { services, loading } = useSelector((state: any) => state.services);
+
+  // Handle incoming WebSocket messages
+  const handleWebSocketMessage = (rawMessage: string) => {
+    try {
+      const parsedMessage = JSON.parse(rawMessage); // Parse the JSON string
+      const update = parsedMessage.update; // Extract the `update` field
+
+      if (update) {
+        const timestamp = new Date().toLocaleString();
+        dispatch(addMessage({ message: update, timestamp }));
+        console.log(update, timestamp);
+      }
+    } catch (error) {
+      console.error('Failed to parse WebSocket message:', rawMessage, error);
+    }
+  };
+
+  useWebSocket(handleWebSocketMessage);
 
   // Fetch services when the component is mounted
   useEffect(() => {

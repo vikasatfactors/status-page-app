@@ -6,11 +6,16 @@ interface AuthContextType {
   loading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ token: null, loading: true });
+const AuthContext = createContext<AuthContextType>({
+  token: null,
+  loading: true,
+});
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
   const [token, setToken] = useState<string | null>(null);
 
@@ -31,10 +36,10 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
     if (!isLoading && isAuthenticated) {
       fetchToken();
     }
-  }, [isAuthenticated, isLoading, getAccessTokenSilently]);
+  }, [isAuthenticated, isLoading]);
 
   return (
-    <AuthContext.Provider value={{ token: localStorage.getItem('authToken'), loading: isLoading }}>
+    <AuthContext.Provider value={{ token: token, loading: isLoading }}>
       {children}
     </AuthContext.Provider>
   );

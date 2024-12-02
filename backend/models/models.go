@@ -12,43 +12,43 @@ type User struct {
 	gorm.Model
 	Name           string `json:"name"`
 	Email          string `json:"email" gorm:"unique"`
-	PasswordHash   string `json:"-"`
-	Role           string `json:"role"` // e.g., "admin", "user"
-	TeamID         uint   `json:"team_id"`
-	OrganizationID uint   `json:"organization_id"`
+	PasswordHash   string `json:"password_hash"`
+	Role           string `json:"role"`
+	TeamID         string `json:"team_id"`
+	OrganizationID string `json:"org_id"`
 }
 
 // Team Model
 type Team struct {
-	ID             uint   `json:"id" gorm:"primaryKey"`
+	ID             string `json:"id" gorm:"primaryKey"`
 	Name           string `json:"name"`
-	OrganizationID uint   `json:"organization_id"`
+	OrganizationID string `json:"org_id"`
 }
 
 // Organization Model (Multi-Tenant)
 type Organization struct {
-	ID   uint   `json:"id" gorm:"primaryKey"`
+	ID   string `json:"id" gorm:"primaryKey"`
 	Name string `json:"name"`
 }
 
 // Service Model
 type Service struct {
-	ID             uint   `json:"id" gorm:"primaryKey"`
+	ID             string `json:"id" gorm:"primaryKey"`
 	Name           string `json:"name"`
 	Status         string `json:"status"`
 	Description    string `json:"description"`
-	OrganizationID uint
+	OrganizationID string `json:"org_id"`
 }
 
 // Incident Model
 type Incident struct {
-	ID          uint   `json:"id" gorm:"primaryKey"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Status      string `json:"status"` // e.g., "active", "resolved"
-	Priority    string `json:"priority"`
-	ServiceID   uint   `json:"service_id"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	ResolvedAt  *time.Time
+	ID          string     `json:"id" gorm:"primaryKey"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Status      string     `json:"status"` // e.g., "active", "resolved"
+	Priority    string     `json:"priority"`
+	ServiceID   string     `json:"service_id"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	ResolvedAt  *time.Time `json:"resolved_at"`
 }

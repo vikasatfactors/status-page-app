@@ -3,21 +3,24 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"time"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
-// WebSocket upgrader
+var clients = make(map[*websocket.Conn]bool) // Store active WebSocket clients
+var mutex = &sync.Mutex{}                    // Mutex for concurrent access to clients
+
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
 }
 
-// WebSocket for status updates
+// StatusUpdates handles WebSocket connections and sends updates
 func StatusUpdates(c *gin.Context) {
+	// Upgrade the HTTP connection to a WebSocket connection
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println("WebSocket upgrade failed:", err)
@@ -25,19 +28,49 @@ func StatusUpdates(c *gin.Context) {
 	}
 	defer conn.Close()
 
+	// Register the WebSocket client
+	mutex.Lock()
+	clients[conn] = true
+	mutex.Unlock()
+
+	// Send an initial connection message
+	err = conn.WriteJSON(map[string]string{
+		"message": "You are now connected to the status updates stream.",
+	})
+	if err != nil {
+		log.Println("Failed to send initial message to client:", err)
+		mutex.Lock()
+		delete(clients, conn)
+		mutex.Unlock()
+		return
+	}
+
+	// Listen for connection closure
 	for {
-		// Simulating real-time status updates
-		// In a real scenario, this could be triggered by status changes in the system
-		statusUpdate := map[string]string{
-			"service": "API",
-			"status":  "Operational",
-			"message": "Everything is running smoothly!",
-		}
-		err := conn.WriteJSON(statusUpdate)
+		_, _, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("Failed to send WebSocket message:", err)
-			return
+			log.Println("WebSocket connection closed:", err)
+
+			mutex.Lock()
+			delete(clients, conn)
+			mutex.Unlock()
+			break
 		}
-		time.Sleep(10 * time.Second) // Simulating a delay for updates
+	}
+}
+
+func BroadcastUpdate(message string) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	update := map[string]string{"update": message}
+
+	for client := range clients {
+		err := client.WriteJSON(update)
+		if err != nil {
+			log.Printf("Error sending update to client: %v. Closing connection.", err)
+			client.Close()
+			delete(clients, client)
+		}
 	}
 }

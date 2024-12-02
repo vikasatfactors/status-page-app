@@ -12,19 +12,19 @@ import { Service } from '@/types/types';
 
 const ServiceManagementPage: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | undefined>();
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState<boolean>(false); // Add loading state
+  const [loading, setLoading] = useState<boolean>(false);
 
   const loadServices = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const data = await getServices();
       setServices(data);
     } catch (error) {
       console.error('Error fetching services:', error);
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
@@ -40,7 +40,7 @@ const ServiceManagementPage: React.FC = () => {
     setShowForm(false);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     await deleteService(id);
     await loadServices();
   };
@@ -48,6 +48,11 @@ const ServiceManagementPage: React.FC = () => {
   useEffect(() => {
     loadServices();
   }, []);
+
+  const handleEdit = (service: Service) => {
+    setSelectedService(service);
+    setShowForm(true);
+  };
 
   return (
     <div className='container mx-auto p-6'>
@@ -57,19 +62,16 @@ const ServiceManagementPage: React.FC = () => {
       </Button>
       {showForm ? (
         <ServiceForm
-          service={selectedService}
+          initialData={selectedService}
           onSave={selectedService ? handleUpdate : handleCreate}
           onCancel={() => setShowForm(false)}
         />
       ) : (
         <ServiceList
           services={services}
-          onEdit={(service) => {
-            setSelectedService(service);
-            setShowForm(true);
-          }}
+          onEdit={handleEdit}
           onDelete={handleDelete}
-          loading={loading} // Pass the loading prop here
+          loading={loading}
         />
       )}
     </div>

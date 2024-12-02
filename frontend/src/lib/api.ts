@@ -173,7 +173,6 @@ export const createIncident = async (incidentData: object) => {
 
 export const getIncidents = async () => {
   try {
-    console.log('apiClient', apiClient);
     const response = await apiClient.get('/incidents');
     return response.data;
   } catch (error) {

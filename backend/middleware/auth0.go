@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/labstack/gommon/log"
 	"github.com/lestrrat-go/jwx/jwk"
 )
 
@@ -52,8 +53,11 @@ func Auth0Middleware() gin.HandlerFunc {
 		}
 
 		// Add claims to context
-		c.Set("userID", claims["sub"])                              // Auth0 user ID
-		c.Set("roles", claims["https://mystatuspageapp.com/roles"]) // Custom claim for roles
+		log.Info(claims)
+		c.Set("userID", claims["sub"])
+		c.Set("roles", claims["https://mystatuspageapp.com/roles"])
+		c.Set("ordID", claims["org_id"])
+		c.Set("permissions", claims["permissions"])
 		c.Next()
 	}
 }
@@ -100,6 +104,12 @@ func validateToken(tokenString string) (jwt.MapClaims, error) {
 		// Verify the issuer
 		if claims["iss"] != fmt.Sprintf("https://%s/", auth0Domain) {
 			return nil, errors.New("invalid issuer")
+		}
+
+		// Verify organization ID (org_id) claim
+		_, ok = claims["org_id"]
+		if !ok {
+			return nil, errors.New("invalid organization ID")
 		}
 
 		return claims, nil

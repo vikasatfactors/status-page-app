@@ -1,21 +1,22 @@
 export interface Service {
   id: string;
   name: string;
-  description?: string; // Optional description of the service
   status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
-  createdAt?: string;
-  updatedAt?: string;
+  description?: string;
+  arg_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Incident {
   id: string;
   title: string;
   description: string;
-  service_id: string; // Name or ID of the associated service
+  service_id: string;
   status: 'investigating' | 'active' | 'monitoring' | 'resolved';
-  CreatedAt: string;
-  UpdatedAt: string;
-  ResolvedAt?: string; 
+  created_at: string;
+  updated_at: string;
+  resolved_at?: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
 }
 
@@ -23,41 +24,42 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'user'; // Define roles as needed
-  organizationId: string; // ID of the organization the user belongs to
+  role: 'admin' | 'user';
+  team_id: string;
+  org_id: string;
 }
 
 export interface Organization {
   id: string;
   name: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Team {
   id: string;
   name: string;
+  org_id: string;
   description?: string;
-  members: User[]; // Array of user objects
-  createdAt: string;
-  updatedAt: string;
+  members: User[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface WebSocketMessage {
-  type: 'service-update' | 'incident-update' | 'team-update'; // Define possible message types
-  payload: unknown; // Payload structure depends on the message type
+  type: 'service-update' | 'incident-update' | 'team-update';
+  payload: unknown;
 }
 
 export interface ApiResponse<T> {
   data: T;
-  message?: string; // Optional message
-  error?: string; // Error details if the request fails
+  message?: string;
+  error?: string;
 }
 
 export interface AuthToken {
   token: string;
-  expiresAt: string; // ISO timestamp for token expiry
+  expiresAt: string;
 }
 
 export interface AuthContextType {
@@ -69,9 +71,9 @@ export interface AuthContextType {
 }
 
 export interface Status {
-  serviceId: string;
-  currentStatus: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
-  lastUpdated: string; // ISO timestamp for the last update
+  service_id: string;
+  current_status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
+  lastUpdated: string;
 }
 
 export interface TeamMember {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Service } from '@/types/types';
 import { Button } from '@/components/ui/button';
 
@@ -8,7 +8,11 @@ interface ServiceFormProps {
   initialData?: Service;
 }
 
-const ServiceForm: React.FC<ServiceFormProps> = ({ onSave, initialData }) => {
+const ServiceForm: React.FC<ServiceFormProps> = ({
+  onSave,
+  onCancel,
+  initialData,
+}) => {
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(
     initialData?.description || ''
@@ -16,6 +20,14 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSave, initialData }) => {
   const [status, setStatus] = useState<Service['status']>(
     initialData?.status || 'operational'
   );
+
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name);
+      setDescription(initialData.description);
+      setStatus(initialData.status);
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +78,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSave, initialData }) => {
         </select>
       </div>
 
-      <Button type='submit'>Save Service</Button>
+      <div className='flex justify-end space-x-4'>
+        <Button type='button' onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type='submit'>Save Service</Button>
+      </div>
     </form>
   );
 };

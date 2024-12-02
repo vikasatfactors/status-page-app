@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Get the current status for public viewing
 func PublicStatus(c *gin.Context) {
 	var services []models.Service
 	if err := models.DB.Find(&services).Error; err != nil {
