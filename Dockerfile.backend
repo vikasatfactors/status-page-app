@@ -1,0 +1,8 @@
+FROM golang:1.20 AS build
+WORKDIR /app
+COPY backend/go.mod backend/go.sum ./
+RUN go mod tidy
+COPY backend/ .
+EXPOSE 8080
+RUN apt-get update && apt-get install -y dotenv
+CMD ["go", "run", "main.go"]
