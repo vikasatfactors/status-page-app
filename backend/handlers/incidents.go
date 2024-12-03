@@ -107,7 +107,7 @@ func DeleteIncident(c *gin.Context) {
 	}
 
 	id := c.Param("id")
-	if err := models.DB.Delete(&models.Incident{}, id).Error; err != nil {
+	if err := models.DB.Delete(&models.Incident{}, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

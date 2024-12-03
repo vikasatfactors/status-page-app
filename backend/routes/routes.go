@@ -15,6 +15,7 @@ func SetupRouter() *gin.Engine {
 	// Apply authentication middleware
 	r.Use(middleware.Auth0Middleware())
 
+	// User routes
 	r.GET("/users", handlers.FetchUsers)
 	r.PATCH("/users/:id/roles", handlers.UpdateUserRole)
 

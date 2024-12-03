@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Incident } from '@/types/types';
+import { Incident, Service } from '@/types/types';
 import { Button } from '@/components/ui/button';
 import { generateHashID } from '@/lib/utils';
+import { getServices } from '@/lib/api';
 
 interface IncidentFormProps {
   onSave: (incident: Incident) => void;
@@ -21,7 +22,18 @@ const IncidentForm: React.FC<IncidentFormProps> = ({
     service_id: '',
   });
 
-  // Sync form state with initialData when it changes
+  const [services, setServices] = useState<Service[]>([]);
+  console.log(services);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const services = await getServices();
+      setServices(services);
+    };
+
+    fetchServices();
+  }, []);
+
   useEffect(() => {
     if (initialData) {
       setFormState({
@@ -33,7 +45,11 @@ const IncidentForm: React.FC<IncidentFormProps> = ({
     }
   }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
   };
@@ -53,69 +69,76 @@ const IncidentForm: React.FC<IncidentFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className='space-y-4'>
       <div>
-        <label htmlFor="title" className="block text-sm font-medium">
+        <label htmlFor='title' className='block text-sm font-medium'>
           Title
         </label>
         <input
-          id="title"
-          name="title"
+          id='title'
+          name='title'
           value={formState.title}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
+          className='w-full border p-2 rounded'
           required
         />
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium">
+        <label htmlFor='description' className='block text-sm font-medium'>
           Description
         </label>
         <textarea
-          id="description"
-          name="description"
+          id='description'
+          name='description'
           value={formState.description}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
+          className='w-full border p-2 rounded'
         />
       </div>
 
       <div>
-        <label htmlFor="service" className="block text-sm font-medium">
+        <label htmlFor='service' className='block text-sm font-medium'>
           Affected Service
         </label>
-        <input
-          id="service"
-          name="service_id"
+        <select
+          id='service'
+          name='service_id'
           value={formState.service_id}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
+          className='w-full border p-2 rounded'
           required
-        />
-      </div>
-
-      <div>
-        <label htmlFor="status" className="block text-sm font-medium">
-          Status
-        </label>
-        <select
-          id="status"
-          name="status"
-          value={formState.status}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
         >
-          <option value="investigating">Investigating</option>
-          <option value="active">Active</option>
-          <option value="monitoring">Monitoring</option>
-          <option value="resolved">Resolved</option>
+          <option value=''>Select a service</option>
+          {services?.map((service) => (
+            <option key={service.id} value={service.id}>
+              {service.name}
+            </option>
+          ))}
         </select>
       </div>
 
-      <div className="flex space-x-2">
-        <Button type="submit">Save Incident</Button>
-        <Button type="button" onClick={onCancel} variant="outline">
+      <div>
+        <label htmlFor='status' className='block text-sm font-medium'>
+          Status
+        </label>
+        <select
+          id='status'
+          name='status'
+          value={formState.status}
+          onChange={handleChange}
+          className='w-full border p-2 rounded'
+        >
+          <option value='investigating'>Investigating</option>
+          <option value='active'>Active</option>
+          <option value='monitoring'>Monitoring</option>
+          <option value='resolved'>Resolved</option>
+        </select>
+      </div>
+
+      <div className='flex space-x-2'>
+        <Button type='submit'>Save Incident</Button>
+        <Button type='button' onClick={onCancel} variant='outline'>
           Cancel
         </Button>
       </div>
