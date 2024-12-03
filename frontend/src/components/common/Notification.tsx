@@ -4,6 +4,9 @@ import { AlertCircle, CheckCircle2, Info, XCircle } from 'lucide-react';
 
 type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
+// Define the valid variants for the Alert component
+type AlertVariant = 'default' | 'destructive';
+
 interface NotificationBannerProps {
   message: string;
   type?: NotificationType;
@@ -35,10 +38,11 @@ const NotificationBanner: React.FC<NotificationBannerProps> = ({
     error: <XCircle className='h-4 w-4' />,
   };
 
-  const variantMap: Record<NotificationType, string> = {
+  // Type the variantMap to use valid AlertVariant values
+  const variantMap: Record<NotificationType, AlertVariant> = {
     info: 'default',
-    success: 'success',
-    warning: 'warning',
+    success: 'default',
+    warning: 'destructive',
     error: 'destructive',
   };
 

@@ -88,7 +88,7 @@ func InitDB() error {
 // 		{
 // 			Title:       "API Slow Responses",
 // 			Description: "API is responding slowly due to increased load.",
-// 			Status:      "identified",
+// 			Status:      "active",
 // 			ServiceID:   services[1].ID,
 // 			CreatedAt:   time.Now().Add(-3 * time.Hour),
 // 			UpdatedAt:   time.Now().Add(-2 * time.Hour),

@@ -20,7 +20,7 @@ interface ConfirmationDialogProps {
   onCancel?: () => void;
   confirmButtonText?: string;
   cancelButtonText?: string;
-  variant?: 'default' | 'destructive';
+  variant?: 'default' | 'destructive'; // Optional variant
 }
 
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
@@ -31,7 +31,6 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   onCancel,
   confirmButtonText = 'Confirm',
   cancelButtonText = 'Cancel',
-  variant = 'destructive'
 }) => {
   return (
     <AlertDialog>
@@ -41,9 +40,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>
@@ -51,7 +48,6 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           </AlertDialogCancel>
           <AlertDialogAction 
             onClick={onConfirm}
-            variant={variant}
           >
             {confirmButtonText}
           </AlertDialogAction>

@@ -54,7 +54,7 @@ func GetTeam(c *gin.Context) {
 
 	id := c.Param("id")
 	var team models.Team
-	if err := models.DB.First(&team, id).Error; err != nil {
+	if err := models.DB.First(&team, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Team not found"})
 		} else {
@@ -75,7 +75,7 @@ func UpdateTeam(c *gin.Context) {
 
 	id := c.Param("id")
 	var team models.Team
-	if err := models.DB.First(&team, id).Error; err != nil {
+	if err := models.DB.First(&team, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Team not found"})
 		return
 	}

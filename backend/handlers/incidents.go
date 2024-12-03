@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"backend/models"
+	"errors"
 	"net/http"
 	"sort"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func CreateIncident(c *gin.Context) {
@@ -55,7 +57,7 @@ func GetIncident(c *gin.Context) {
 
 	id := c.Param("id")
 	var incident models.Incident
-	if err := models.DB.First(&incident, id).Error; err != nil {
+	if err := models.DB.First(&incident, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Incident not found"})
 		return
 	}
@@ -71,18 +73,29 @@ func UpdateIncident(c *gin.Context) {
 
 	id := c.Param("id")
 	var incident models.Incident
-	if err := models.DB.First(&incident, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Incident not found"})
+	// Fix: Specify the query condition for fetching the incident
+	if err := models.DB.First(&incident, "id = ?", id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Incident not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		}
 		return
 	}
+
 	if err := c.ShouldBindJSON(&incident); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Ensure that the `id` is not accidentally overwritten
+	incident.ID = id
+
 	if err := models.DB.Save(&incident).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, incident)
 }
 

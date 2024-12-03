@@ -35,7 +35,7 @@ const TeamManagementPage: React.FC = () => {
     setShowForm(false);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     await deleteTeam(id);
     await loadTeams();
   };
@@ -52,7 +52,7 @@ const TeamManagementPage: React.FC = () => {
       </Button>
       {showForm && (
         <TeamForm
-          team={selectedTeam}
+          initialData={selectedTeam}
           onSave={selectedTeam ? handleUpdate : handleCreate}
           onCancel={() => setShowForm(false)}
         />

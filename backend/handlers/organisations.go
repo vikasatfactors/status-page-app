@@ -50,7 +50,7 @@ func GetOrganization(c *gin.Context) {
 
 	id := c.Param("id")
 	var organization models.Organization
-	if err := models.DB.First(&organization, id).Error; err != nil {
+	if err := models.DB.First(&organization, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Organization not found"})
 		return
 	}
@@ -66,7 +66,7 @@ func UpdateOrganization(c *gin.Context) {
 
 	id := c.Param("id")
 	var organization models.Organization
-	if err := models.DB.First(&organization, id).Error; err != nil {
+	if err := models.DB.First(&organization, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Organization not found"})
 		return
 	}

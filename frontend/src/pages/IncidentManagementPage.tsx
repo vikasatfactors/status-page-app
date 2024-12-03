@@ -16,7 +16,7 @@ const IncidentManagementPage: React.FC = () => {
     null
   );
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState<boolean>(false); // Add loading state
+  const [loading, setLoading] = useState<boolean>(false);
 
   const loadIncidents = async () => {
     setLoading(true); // Start loading
@@ -30,21 +30,31 @@ const IncidentManagementPage: React.FC = () => {
     }
   };
 
-  const handleCreate = async (newIncident: Incident) => {
-    await createIncident(newIncident);
+  const handleCreateOrUpdate = async (incident: Incident) => {
+    if (selectedIncident) {
+      // Update mode
+      await updateIncident(selectedIncident.id, incident);
+    } else {
+      // Create mode
+      await createIncident(incident);
+    }
     await loadIncidents();
     setShowForm(false);
+    setSelectedIncident(null); // Reset the selected incident
   };
 
-  const handleUpdate = async (updatedIncident: Incident) => {
-    await updateIncident(updatedIncident.id, updatedIncident);
-    await loadIncidents();
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteIncident(id);
+      await loadIncidents();
+    } catch (error) {
+      console.error('Error deleting incident:', error);
+    }
+  };
+
+  const handleCancel = () => {
     setShowForm(false);
-  };
-
-  const handleDelete = async (id: number) => {
-    await deleteIncident(id);
-    await loadIncidents();
+    setSelectedIncident(null); // Reset the selected incident
   };
 
   useEffect(() => {
@@ -52,22 +62,21 @@ const IncidentManagementPage: React.FC = () => {
   }, []);
 
   return (
-    <div className='container mx-auto p-6'>
-      <h1 className='text-3xl font-bold mb-6'>Incident Management</h1>
-      <Button onClick={() => setShowForm(true)} className='mb-4'>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Incident Management</h1>
+      <Button onClick={() => setShowForm(true)} className="mb-4">
         Add New Incident
       </Button>
       {showForm ? (
         <IncidentForm
-          incident={selectedIncident}
-          onSave={selectedIncident ? handleUpdate : handleCreate}
-          onCancel={() => setShowForm(false)}
+          initialData={selectedIncident} // Pass initialData correctly
+          onSave={handleCreateOrUpdate}
+          onCancel={handleCancel}
         />
       ) : (
         <IncidentList
           incidents={incidents}
           onEdit={(incident) => {
-            console.log(incident);
             setSelectedIncident(incident);
             setShowForm(true);
           }}

@@ -93,7 +93,7 @@ const PublicStatusPage: React.FC = () => {
                       <p className='text-sm text-gray-500'>{incident.status}</p>
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {new Date(incident.UpdatedAt).toLocaleString()}
+                      {new Date(incident.updated_at).toLocaleString()}
                     </span>
                   </div>
                 </div>

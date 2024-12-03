@@ -6,7 +6,7 @@ import { IncidentStatusMap, PRIORITY_CONFIG } from '@/lib/constants';
 interface IncidentListProps {
   incidents: Incident[];
   onEdit: (incident: Incident) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   loading: boolean;
 }
 

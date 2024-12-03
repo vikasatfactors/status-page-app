@@ -3,7 +3,7 @@ export interface Service {
   name: string;
   status: 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
   description?: string;
-  organization_id: string;
+  organization_id?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -25,8 +25,8 @@ export interface User {
   email: string;
   name: string;
   role: 'admin' | 'user';
-  team_id: string;
-  organization_id: string;
+  team_id?: string;
+  organization_id?: string;
 }
 
 export interface Organization {
@@ -39,11 +39,11 @@ export interface Organization {
 export interface Team {
   id: string;
   name: string;
-  organization_id: string;
+  organization_id?: string;
   description?: string;
-  members: User[];
-  created_at: string;
-  updated_at: string;
+  members?: User[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface WebSocketMessage {
