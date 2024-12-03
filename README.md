@@ -151,4 +151,4 @@ Your Name - pk2698@gmail.com
 Project Link: [https://github.com/vikasatfactors/status-page-app](https://github.com/vikasatfactors/status-page-app)
 
 ## ⚠️ Security Note
-🚨 **Important**: Replace the dummy credentials with your actual configuration in a real-world deployment. Never commit sensitive information like API keys and passwords to version control.
+🚨 **Important**: Replace the dummy credentials with your actual configuration in a real-world deployment.
