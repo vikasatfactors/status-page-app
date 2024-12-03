@@ -15,12 +15,16 @@ func SetupRouter() *gin.Engine {
 	// Apply authentication middleware
 	r.Use(middleware.Auth0Middleware())
 
+	r.GET("/users", handlers.FetchUsers)
+	r.PATCH("/users/:id/roles", handlers.UpdateUserRole)
+
 	// Team routes
 	r.POST("/teams", handlers.CreateTeam)
 	r.GET("/teams", handlers.GetTeams)
 	r.GET("/teams/:id", handlers.GetTeam)
 	r.PUT("/teams/:id", handlers.UpdateTeam)
 	r.DELETE("/teams/:id", handlers.DeleteTeam)
+	r.POST("/teams/:id/members", handlers.AddUserToTeam)
 
 	// Organization routes
 	r.POST("/organizations", handlers.CreateOrganization)
@@ -43,7 +47,7 @@ func SetupRouter() *gin.Engine {
 	r.PUT("/incidents/:id", handlers.UpdateIncident)
 	r.DELETE("/incidents/:id", handlers.DeleteIncident)
 
-	// Real-time WebSocket status updates
+	// WebSocket status updates
 	r.GET("/status-updates", handlers.StatusUpdates)
 
 	// Public status page

@@ -10,6 +10,7 @@ import {
   Users,
   ClockIcon,
   CheckCircleIcon,
+  Settings,
 } from 'lucide-react';
 
 // Status Badge Map
@@ -83,5 +84,15 @@ export const NavItems = [
     name: 'Team',
     path: '/teams',
     icon: Users,
+  },
+  {
+    name: 'Users',
+    path: '/users',
+    icon: Users,
+  },
+  {
+    name: 'Settings',
+    path: '/settings',
+    icon: Settings,
   },
 ];

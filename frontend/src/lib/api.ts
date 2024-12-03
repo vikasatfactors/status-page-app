@@ -1,5 +1,39 @@
 import apiClient from './apiClient';
 
+// Fetch all users in the organization
+export const fetchUsers = async () => {
+  try {
+    const response = await apiClient.get("/users");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+// Fetch all available roles
+export const fetchRoles = async () => {
+  try {
+    const response = await apiClient.get("/roles");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+    throw error;
+  }
+};
+
+// Update a user's role
+export const updateUserRole = async (userId: string, roleId: string) => {
+  try {
+    const response = await apiClient.patch(`/users/${userId}/roles`, {
+      role: roleId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    throw error;
+  }
+};
 
 // API functions for Teams
 export const createTeam = async (teamData: object) => {

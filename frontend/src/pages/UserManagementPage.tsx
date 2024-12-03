@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth0 } from '@auth0/auth0-react';
 import { User } from '@/types/types'; // Your user type definition
 import { Edit, Trash } from 'lucide-react';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const UserManagementPage: React.FC = () => {
   const { user, getAccessTokenSilently } = useAuth0();
@@ -78,7 +79,7 @@ const UserManagementPage: React.FC = () => {
     fetchUsers();
   }, [user]);
 
-  if (loading) return <div>Loading users...</div>;
+  if (loading) return <LoadingSpinner message='Loading users...'/>;
 
   return (
     <div className='container mx-auto p-6 max-w-4xl'>

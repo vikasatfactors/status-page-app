@@ -1,12 +1,15 @@
 package models
 
 import (
+	"backend/auth0"
 	"time"
 
+	uuid "github.com/jackc/pgx/pgtype/ext/gofrs-uuid"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
+var Auth0Client *auth0.Auth0Client
 
 type User struct {
 	gorm.Model
@@ -18,17 +21,23 @@ type User struct {
 	OrganizationID string `json:"organization_id"`
 }
 
-// Team Model
 type Team struct {
-	ID             string `json:"id" gorm:"primaryKey"`
-	Name           string `json:"name"`
-	OrganizationID string `json:"organization_id"`
+	ID             uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	Name           string    `json:"name" gorm:"not null"`
+	OrganizationID uuid.UUID `json:"organization_id" gorm:"not null"`
+	Members        []User    `gorm:"many2many:team_members"`
+}
+
+type TeamMembers struct {
+	TeamID uuid.UUID `gorm:"not null"`
+	UserID string    `gorm:"not null"`
 }
 
 // Organization Model (Multi-Tenant)
 type Organization struct {
-	ID   string `json:"id" gorm:"primaryKey"`
-	Name string `json:"name"`
+	ID    uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	Name  string    `gorm:"not null"`
+	Teams []Team    `gorm:"foreignKey:OrganizationID"`
 }
 
 // Service Model

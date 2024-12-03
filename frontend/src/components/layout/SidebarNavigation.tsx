@@ -34,6 +34,8 @@ const SidebarNavigation: React.FC = () => {
       </nav>
 
       <div className='border-t mt-auto pt-4'>
+      <Link key={'settings'} to='/settings'>
+
         <Button
           variant='outline'
           className='w-full'
@@ -42,6 +44,8 @@ const SidebarNavigation: React.FC = () => {
           <Settings className='w-4 h-4 mr-2' />
           Account Settings
         </Button>
+        </Link>
+
       </div>
     </div>
   );

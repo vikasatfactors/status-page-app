@@ -10,6 +10,7 @@ import ServiceManagementPage from './pages/ServiceManagementPage';
 import IncidentManagementPage from './pages/IncidentManagementPage';
 import TeamManagementPage from './pages/TeamManagementPage';
 import UserManagementPage from './pages/UserManagementPage';
+import AccountSettings from './pages/AccountSettings';
 
 const AppRoutes: React.FC = () => {
   const { isLoading } = useAuth0();
@@ -20,11 +21,9 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      {/* Public Routes */}
       <Route path='/' element={<PublicStatusPage />} />
       <Route path='/login' element={<LoginPage />} />
 
-      {/* Protected Routes */}
       <Route
         path='/dashboard'
         element={
@@ -62,6 +61,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute roles={['admin']}>
             <UserManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path='/settings'
+        element={
+          <ProtectedRoute roles={['admin']}>
+            <AccountSettings />
           </ProtectedRoute>
         }
       />
