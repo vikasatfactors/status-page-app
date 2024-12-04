@@ -1,4 +1,4 @@
-export const API_URL = 'https://sumitnegi.me:8080'; // Update with your backend URL if needed
+export const API_URL = 'https://api.sumitnegi.me'; // Update with your backend URL if needed
 
 import {
   CheckCircle2,
