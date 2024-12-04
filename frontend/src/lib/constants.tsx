@@ -1,4 +1,5 @@
 export const API_URL = '//www.sumitnegi.me';
+export const WebSocketURL = 'wss://www.sumitnegi.me/status-updates';
 
 import {
   CheckCircle2,
