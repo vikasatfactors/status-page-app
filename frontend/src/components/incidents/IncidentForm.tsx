@@ -23,7 +23,6 @@ const IncidentForm: React.FC<IncidentFormProps> = ({
   });
 
   const [services, setServices] = useState<Service[]>([]);
-  console.log(services);
 
   useEffect(() => {
     const fetchServices = async () => {

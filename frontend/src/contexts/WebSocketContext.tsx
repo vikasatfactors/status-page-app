@@ -1,4 +1,5 @@
 // WebSocketContext.tsx (Consolidated file)
+import { WebSocketURL } from '@/lib/constants';
 import { useAuth0 } from '@auth0/auth0-react';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
@@ -15,7 +16,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  const url = 'ws://localhost:8080/status-updates';
   const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [isAuthenticated, isLoading]);
 
   useEffect(() => {
-    const ws = new WebSocket(`${url}?token=${token}`);
+    const ws = new WebSocket(`${WebSocketURL}?token=${token}`);
     setSocket(ws);
 
     ws.onopen = () => {
@@ -54,7 +54,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       ws.close();
     };
-  }, [url, token]);
+  }, [token]);
 
   // Function to send a message to WebSocket
   const sendMessage = (message: string) => {
