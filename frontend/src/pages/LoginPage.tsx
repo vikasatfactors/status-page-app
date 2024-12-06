@@ -7,7 +7,6 @@ import { Navigate } from 'react-router-dom';
 const LoginPage: React.FC = () => {
   const { isAuthenticated } = useAuth0();
 
-  // Redirect to dashboard if already authenticated
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }

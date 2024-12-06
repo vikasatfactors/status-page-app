@@ -4,6 +4,7 @@ import TeamList from '@/components/teams/TeamList';
 import TeamForm from '@/components/teams/TeamForm';
 import { getTeams, createTeam, updateTeam, deleteTeam } from '@/lib/api';
 import { Team } from '@/types/types';
+import Banner from '@/components/common/Banner';
 
 const TeamManagementPage: React.FC = () => {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -46,6 +47,7 @@ const TeamManagementPage: React.FC = () => {
 
   return (
     <div className='container mx-auto p-6'>
+      <Banner />
       <h1 className='text-3xl font-bold mb-6'>Team Management</h1>
       <Button onClick={() => setShowForm(true)} className='mb-4'>
         Add New Team

@@ -9,50 +9,50 @@ import (
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
-	// Apply CORS middleware to all routes
+
 	r.Use(middleware.CORSConfig())
 
-	// Apply authentication middleware
-	r.Use(middleware.Auth0Middleware())
+	// Public status page route without authentication middleware
+	r.GET("/status", handlers.PublicStatus)
+
+	protected := r.Group("/")
+	protected.Use(middleware.Auth0Middleware())
 
 	// User routes
-	r.GET("/users", handlers.FetchUsers)
-	r.PATCH("/users/:id/roles", handlers.UpdateUserRole)
+	protected.GET("/users", handlers.FetchUsers)
+	protected.PATCH("/users/:id/roles", handlers.UpdateUserRole)
 
 	// Team routes
-	r.POST("/teams", handlers.CreateTeam)
-	r.GET("/teams", handlers.GetTeams)
-	r.GET("/teams/:id", handlers.GetTeam)
-	r.PUT("/teams/:id", handlers.UpdateTeam)
-	r.DELETE("/teams/:id", handlers.DeleteTeam)
-	r.POST("/teams/:id/members", handlers.AddUserToTeam)
+	protected.POST("/teams", handlers.CreateTeam)
+	protected.GET("/teams", handlers.GetTeams)
+	protected.GET("/teams/:id", handlers.GetTeam)
+	protected.PUT("/teams/:id", handlers.UpdateTeam)
+	protected.DELETE("/teams/:id", handlers.DeleteTeam)
+	protected.POST("/teams/:id/members", handlers.AddUserToTeam)
 
 	// Organization routes
-	r.POST("/organizations", handlers.CreateOrganization)
-	r.GET("/organizations", handlers.GetOrganizations)
-	r.GET("/organizations/:id", handlers.GetOrganization)
-	r.PUT("/organizations/:id", handlers.UpdateOrganization)
-	r.DELETE("/organizations/:id", handlers.DeleteOrganization)
+	protected.POST("/organizations", handlers.CreateOrganization)
+	protected.GET("/organizations", handlers.GetOrganizations)
+	protected.GET("/organizations/:id", handlers.GetOrganization)
+	protected.PUT("/organizations/:id", handlers.UpdateOrganization)
+	protected.DELETE("/organizations/:id", handlers.DeleteOrganization)
 
 	// Service routes
-	r.POST("/services", handlers.CreateService)
-	r.GET("/services", handlers.GetServices)
-	r.GET("/services/:id", handlers.GetService)
-	r.PUT("/services/:id", handlers.UpdateService)
-	r.DELETE("/services/:id", handlers.DeleteService)
+	protected.POST("/services", handlers.CreateService)
+	protected.GET("/services", handlers.GetServices)
+	protected.GET("/services/:id", handlers.GetService)
+	protected.PUT("/services/:id", handlers.UpdateService)
+	protected.DELETE("/services/:id", handlers.DeleteService)
 
 	// Incident routes
-	r.POST("/incidents", handlers.CreateIncident)
-	r.GET("/incidents", handlers.GetIncidents)
-	r.GET("/incidents/:id", handlers.GetIncident)
-	r.PUT("/incidents/:id", handlers.UpdateIncident)
-	r.DELETE("/incidents/:id", handlers.DeleteIncident)
+	protected.POST("/incidents", handlers.CreateIncident)
+	protected.GET("/incidents", handlers.GetIncidents)
+	protected.GET("/incidents/:id", handlers.GetIncident)
+	protected.PUT("/incidents/:id", handlers.UpdateIncident)
+	protected.DELETE("/incidents/:id", handlers.DeleteIncident)
 
 	// WebSocket status updates
-	r.GET("/status-updates", handlers.StatusUpdates)
-
-	// Public status page
-	r.GET("/status", handlers.PublicStatus)
+	protected.GET("/status-updates", handlers.StatusUpdates)
 
 	return r
 }

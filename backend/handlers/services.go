@@ -80,11 +80,7 @@ func GetService(c *gin.Context) {
 }
 
 func UpdateService(c *gin.Context) {
-	type StatusUpdateRequest struct {
-		Status string `json:"status"`
-	}
-
-	var req StatusUpdateRequest
+	var req map[string]interface{} // Use a map to handle partial updates
 
 	permissions, _ := c.Get("permissions")
 	if !hasPermission(permissions, "write:services") {
@@ -94,7 +90,7 @@ func UpdateService(c *gin.Context) {
 
 	orgID, exists := c.Get("orgID")
 	if !exists {
-		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to create a service"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to update this service"})
 		return
 	}
 
@@ -105,52 +101,55 @@ func UpdateService(c *gin.Context) {
 		return
 	}
 
+	// Ensure orgID and serviceID match
 	var service models.Service
 	if err := models.DB.Where("id = ? AND organization_id = ?", serviceID, orgID).First(&service).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Service not found"})
 		return
 	}
 
-	// Update service status
+	// Preserve previous status for incident handling
 	previousStatus := service.Status
-	service.Status = req.Status
-	if err := models.DB.Save(&service).Error; err != nil {
+
+	// Update only the fields provided in req
+	if err := models.DB.Model(&service).Updates(req).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update service"})
 		return
 	}
 
-	// Handle incidents based on status change
-	if shouldCreateIncident(previousStatus, req.Status) {
-		newID, _ := GenerateRandomHashID(16)
-		incident := models.Incident{
-			ID:          newID,
-			Title:       "Service Issue Detected",
-			Description: fmt.Sprintf("The %s has entered a degraded or outage state.", service.Name),
-			Status:      "active",
-			Priority:    getIncidentPriority(req.Status), // Set priority based on the status
-			ServiceID:   service.ID,
-			CreatedAt:   time.Now(),
-		}
-		if err := models.DB.Create(&incident).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create incident"})
-			return
-		}
-	} else if shouldResolveIncident(previousStatus, req.Status) {
-		var activeIncident models.Incident
-		if err := models.DB.Where("service_id = ? AND status = ?", service.ID, "active").First(&activeIncident).Error; err == nil {
-			if err := models.DB.Model(&activeIncident).
-				Where("service_id = ? AND status = ?", service.ID, "active"). // Add the WHERE condition for the update
-				Updates(map[string]interface{}{
-					"status":      "resolved",
-					"resolved_at": timePtr(time.Now()),
-				}).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "organization_id"})
+	// Handle incidents based on status change (if status was updated)
+	if status, ok := req["status"].(string); ok {
+		if shouldCreateIncident(previousStatus, status) {
+			newID, _ := GenerateRandomHashID(16)
+			incident := models.Incident{
+				ID:          newID,
+				Title:       "Service Issue Detected",
+				Description: fmt.Sprintf("The %s has entered a degraded or outage state.", service.Name),
+				Status:      "active",
+				Priority:    getIncidentPriority(status),
+				ServiceID:   service.ID,
+				CreatedAt:   time.Now(),
+			}
+			if err := models.DB.Create(&incident).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create incident"})
 				return
+			}
+		} else if shouldResolveIncident(previousStatus, status) {
+			var activeIncident models.Incident
+			if err := models.DB.Where("service_id = ? AND status = ?", service.ID, "active").First(&activeIncident).Error; err == nil {
+				if err := models.DB.Model(&activeIncident).
+					Updates(map[string]interface{}{
+						"status":      "resolved",
+						"resolved_at": timePtr(time.Now()),
+					}).Error; err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to resolve incident"})
+					return
+				}
 			}
 		}
 	}
 
-	message := service.Name + " status changed to " + service.Status
+	message := fmt.Sprintf("%s status changed to %s", service.Name, service.Status)
 	BroadcastUpdate(message)
 	c.JSON(http.StatusOK, service)
 }
