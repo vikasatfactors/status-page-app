@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom'; // Import Link
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -27,7 +28,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // You can log the error to an error reporting service
     console.error('Uncaught error:', error, errorInfo);
   }
 
@@ -48,6 +48,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               <pre>{this.state.error.toString()}</pre>
             </details>
           )}
+          <Link to="/" className="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Go to Home
+          </Link>
         </div>
       );
     }

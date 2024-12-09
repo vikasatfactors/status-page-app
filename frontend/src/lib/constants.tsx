@@ -80,14 +80,14 @@ export const NavItems = [
     path: '/incidents',
     icon: AlertTriangle,
   },
-  {
-    name: 'Team',
-    path: '/teams',
-    icon: Users,
-  },
-  {
-    name: 'Users',
-    path: '/users',
-    icon: Users,
-  },
+  // {
+  //   name: 'Team',
+  //   path: '/teams',
+  //   icon: Users,
+  // },
+  // {
+  //   name: 'Users',
+  //   path: '/users',
+  //   icon: Users,
+  // },
 ];

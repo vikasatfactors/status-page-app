@@ -5,19 +5,22 @@ import { AuthContextProvider } from './contexts/AuthContext';
 import { Provider } from 'react-redux';
 import store from './store';
 import { WebSocketProvider } from './contexts/WebSocketContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 const App: React.FC = () => {
   return (
     <div className='min-h-screen bg-background'>
-      <AuthContextProvider>
-        <WebSocketProvider>
-          <Provider store={store}>
-            <AppLayout>
-              <AppRoutes />
-            </AppLayout>
-          </Provider>
-        </WebSocketProvider>
-      </AuthContextProvider>
+      <ErrorBoundary>
+        <AuthContextProvider>
+          <WebSocketProvider>
+            <Provider store={store}>
+              <AppLayout>
+                <AppRoutes />
+              </AppLayout>
+            </Provider>
+          </WebSocketProvider>
+        </AuthContextProvider>
+      </ErrorBoundary>
     </div>
   );
 };
