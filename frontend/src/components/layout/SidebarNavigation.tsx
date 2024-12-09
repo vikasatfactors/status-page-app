@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Settings } from 'lucide-react';
+// import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { NavItems } from '@/lib/constants';
 
 const SidebarNavigation: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   return (
     <div className='flex-col w-64 bg-white border-r h-full p-4'>
@@ -32,7 +32,7 @@ const SidebarNavigation: React.FC = () => {
           );
         })}
       </nav>
-
+      {/* 
       <div className='border-t mt-auto pt-4'>
       <Link key={'settings'} to='/settings'>
 
@@ -46,7 +46,7 @@ const SidebarNavigation: React.FC = () => {
         </Button>
         </Link>
 
-      </div>
+      </div> */}
     </div>
   );
 };
