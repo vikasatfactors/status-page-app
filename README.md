@@ -135,9 +135,6 @@ npm run dev
 - **Email**: admin@test.com
 - **Password**: admin@123
 
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
-
 ## 📞 Contact
 Your Name - pk2698@gmail.com
 
